@@ -5,7 +5,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import './Auth.css';
 
 export default function Register() {
-  const [form, setForm] = useState({ username: '', email: '', password: '', avatar: '' });
+  const [form, setForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    avatar: '',
+    phone: '',
+  });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -25,6 +31,7 @@ export default function Register() {
         email: form.email.trim(),
         password: form.password.trim(),
         avatar: form.avatar.trim(),
+        phone: form.phone.trim(),
       });
       navigate('/login');
     } catch (err) {
@@ -70,6 +77,17 @@ export default function Register() {
         value={form.password}
         onChange={handleChange}
         placeholder="Enter password"
+        required
+      />
+
+      <label htmlFor="phone">Phone Number</label>
+      <input
+        id="phone"
+        type="tel"
+        name="phone"
+        value={form.phone}
+        onChange={handleChange}
+        placeholder="Enter phone number"
         required
       />
 
