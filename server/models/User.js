@@ -10,11 +10,8 @@ const userSchema = new mongoose.Schema({
   resetTokenExpiration: Date,
   resetPasswordToken: String,
   resetPasswordExpire: Date,
-  
   resetOTP: String,
-  otpExpires: Date,
-  
-
+  otpExpires: Date
 });
 
 export default mongoose.model('User', userSchema);

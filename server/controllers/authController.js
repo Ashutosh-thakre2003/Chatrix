@@ -11,6 +11,10 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const twilioClient = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
 
 const sendOTP = async (email, phone, otp) => {
+  // Format phone to E.164 (e.g., +91xxxxxxxxxx)
+  const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
+
+  // Send Email
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
@@ -26,12 +30,24 @@ const sendOTP = async (email, phone, otp) => {
     text: `Your OTP for password reset is: ${otp}`
   });
 
-  await twilioClient.messages.create({
-    body: `Your OTP for password reset is: ${otp}`,
-    from: process.env.TWILIO_PHONE_NUMBER,
-    to: phone
-  });
+  // Send SMS
+  try {
+    await twilioClient.messages.create({
+      body: `Your OTP for password reset is: ${otp}`,
+      from: process.env.TWILIO_PHONE_NUMBER, // must be a verified Twilio number
+      to: formattedPhone
+    });
+    console.log("✅ SMS sent successfully");
+  } catch (smsError) {
+    console.error("❌ Failed to send SMS:", smsError);
+    if (smsError.code === 21408) {
+      console.error("📌 Enable your Twilio trial account for sending SMS to this region (https://www.twilio.com/console/phone-numbers/verified)");
+    } else if (smsError.code === 21212) {
+      console.error("📌 Invalid 'from' number. Make sure your Twilio phone number is verified and SMS-capable.");
+    }
+  }
 };
+
 
 export const register = async (req, res) => {
   const { username, email, password, avatar, phone } = req.body;
@@ -89,6 +105,28 @@ export const requestPasswordReset = async (req, res) => {
     res.status(500).json({ error: 'Error sending OTP' });
   }
 };
+
+export const verifyOtp = async (req, res) => {
+  const { email, otp } = req.body;
+  try {
+    const user = await User.findOne({
+      email,
+      resetOTP: otp,
+      otpExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired OTP' });
+    }
+
+    // OTP is valid
+    res.json({ message: 'OTP verified successfully' });
+  } catch (err) {
+    console.error('OTP verification error:', err);
+    res.status(500).json({ error: 'OTP verification failed' });
+  }
+};
+
 
 export const resetPassword = async (req, res) => {
   const { email, otp, newPassword } = req.body;
