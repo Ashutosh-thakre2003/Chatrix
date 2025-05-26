@@ -1,8 +1,8 @@
 # 💬 MERN Stack Real-Time Chat App
 
-A full-featured real-time chat application built with the **MERN Stack** (MongoDB, Express, React, Node.js), using **Socket.IO** for instant messaging, **Zustand** for state management, and support for text, image, file sharing, and more.
+A full-featured real-time chat application built with the **MERN Stack** (MongoDB, Express, React, Node.js), using **Socket.IO** for instant messaging, **Zustand** for state management, and support for text, image, and more.
 
-![Chat App Screenshot](./screenshot.png)
+
 
 ---
 
